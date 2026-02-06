@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
+import { createSupabaseClient } from '@/lib/supabase/client';
 
 import { BackgroundDecor } from '@/components/auth/BackgroundDecor/BackgroundDecor';
 import { BackToHome } from '@/components/auth/BackToHome/BackToHome';
@@ -12,7 +12,10 @@ import { SocialAuth } from '@/components/auth/SocialAuth/SocialAuth';
 import { AuthFooterToggle } from '@/components/auth/AuthFooterToggle/AuthFooterToggle';
 import { TrustBadge } from '@/components/auth/TrustBadge/TrustBadge';
 
+export const dynamic = 'force-dynamic'; // ✅ prevents prerender issues
+
 export default function AuthPage() {
+  const supabase = createSupabaseClient(); // ✅ THIS WAS MISSING
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,36 +29,27 @@ export default function AuthPage() {
     setLoading(true);
 
     const { data, error } = isLogin
-      ? await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+      ? await supabase.auth.signInWithPassword({ email, password })
       : await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: {
-              full_name: fullName,
-            },
+            data: { full_name: fullName },
           },
         });
 
     setLoading(false);
-
-    console.log('AUTH RESPONSE:', { data, error });
 
     if (error) {
       alert(error.message);
       return;
     }
 
-    // Signup with email confirmation enabled
     if (!isLogin && !data.session) {
       alert('Account created! Please check your email to confirm.');
       return;
     }
 
-    // Login or confirmed signup
     router.push('/');
   };
 

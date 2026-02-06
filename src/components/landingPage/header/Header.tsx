@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase/client';
+import { createSupabaseClient } from '@/lib/supabase/client';
 import RentoraLogoMascot from './RentoraLogoMascot';
 
 function classNames(...classes: (string | boolean | undefined | null)[]) {
@@ -10,6 +10,7 @@ function classNames(...classes: (string | boolean | undefined | null)[]) {
 }
 
 const Header = () => {
+  const supabase = createSupabaseClient(); // ✅ FIX
   const [scrolled, setScrolled] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
 
@@ -28,8 +29,8 @@ const Header = () => {
       if (data?.user) {
         setUserName(
           data.user.user_metadata?.full_name ||
-          data.user.email?.split('@')[0] ||
-          'User'
+            data.user.email?.split('@')[0] ||
+            'User'
         );
       } else {
         setUserName(null);
@@ -38,15 +39,14 @@ const Header = () => {
 
     getUser();
 
-    // Listen to auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUserName(
           session.user.user_metadata?.full_name ||
-          session.user.email?.split('@')[0] ||
-          'User'
+            session.user.email?.split('@')[0] ||
+            'User'
         );
       } else {
         setUserName(null);
@@ -54,7 +54,7 @@ const Header = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

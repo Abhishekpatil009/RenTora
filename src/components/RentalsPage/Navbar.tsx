@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Globe, User } from 'lucide-react';
-import { supabase } from '@/lib/supabase/client';
+import { Search } from 'lucide-react';
+import { createSupabaseClient } from '@/lib/supabase/client';
 import RentoraLogoMascot from '@/components/landingPage/header/RentoraLogoMascot';
 
 type NavbarProps = {
@@ -11,6 +11,7 @@ type NavbarProps = {
 };
 
 export default function Navbar({ onSearch = () => {} }: NavbarProps) {
+  const supabase = createSupabaseClient(); // ✅ FIX
   const [scrolled, setScrolled] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
@@ -30,8 +31,8 @@ export default function Navbar({ onSearch = () => {} }: NavbarProps) {
       if (data?.user) {
         setUserName(
           data.user.user_metadata?.full_name ||
-          data.user.email?.split('@')[0] ||
-          'User'
+            data.user.email?.split('@')[0] ||
+            'User'
         );
       } else {
         setUserName(null);
@@ -46,8 +47,8 @@ export default function Navbar({ onSearch = () => {} }: NavbarProps) {
       if (session?.user) {
         setUserName(
           session.user.user_metadata?.full_name ||
-          session.user.email?.split('@')[0] ||
-          'User'
+            session.user.email?.split('@')[0] ||
+            'User'
         );
       } else {
         setUserName(null);
@@ -55,7 +56,7 @@ export default function Navbar({ onSearch = () => {} }: NavbarProps) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
