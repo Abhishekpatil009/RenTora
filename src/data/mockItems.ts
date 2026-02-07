@@ -57,8 +57,7 @@ export const MOCK_ITEMS: LandingPageRentalItem [] = [
     location: "Delhi",
     rating: 4.6,
     reviews: 64,
-    image:
-      "https://images.unsplash.com/photo-1616469832301-ffaeadc68cf5?q=80&w=800",
+    image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
     featured: true,
   },
 ];
